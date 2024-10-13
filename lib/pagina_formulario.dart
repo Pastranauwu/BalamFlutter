@@ -29,7 +29,7 @@ class RespuestaApi {
 // Función para enviar el JSON con la pregunta y respuesta y recibir la respuesta filtrada
 Future<RespuestaApi?> enviarPreguntaRespuesta(
     String pregunta, String respuesta) async {
-  final String apiUrl = 'http://172.31.99.197:49749/mensajes'; // Ruta de la API
+  final String apiUrl = 'http://172.31.98.222:8000/mensajes'; // Ruta de la API
 
   // Estructura del JSON que enviarás
   Map<String, dynamic> jsonBody = {
@@ -49,11 +49,10 @@ Future<RespuestaApi?> enviarPreguntaRespuesta(
   // Verificar si la solicitud fue exitosa
   if (response.statusCode == 200) {
     print('Datos enviados con éxito');
-    print('Respuesta del servidor: ${response.body}');
-
     // Decodificar el JSON recibido
     final String responseBody = utf8.decode(response.bodyBytes);
     final Map<String, dynamic> jsonResponse = jsonDecode(responseBody);
+    print('Respuesta del servidor: ${response.body}');
 
     return RespuestaApi.fromJson(
         jsonResponse); // Crear y devolver la instancia de RespuestaApi

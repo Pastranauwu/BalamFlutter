@@ -1,7 +1,7 @@
+import 'package:balam_front/metas_page.dart';
+import 'package:balam_front/pagina_formulario.dart';
 import 'package:flutter/material.dart';
-// import 'dart:convert'; // Para convertir JSON
-// import 'package:http/http.dart' as http; // Paquete http para solicitudes
-
+import 'lectura.dart'; // Asegúrate de importar la clase Lectura
 
 class PaginaConFondo extends StatefulWidget {
   const PaginaConFondo({super.key});
@@ -23,7 +23,8 @@ class _PaginaConFondoState extends State<PaginaConFondo> {
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
-            side: const BorderSide(color: Colors.red, width: 4), // Borde rojo
+            side: const BorderSide(
+                color: Color(0xffeb0029), width: 4), // Borde rojo
           ),
           title: const Center(
             child: Text(
@@ -44,9 +45,12 @@ class _PaginaConFondoState extends State<PaginaConFondo> {
               child: const Text('Sí',
                   style: TextStyle(color: Colors.red)), // Botón Sí
               onPressed: () {
-                Navigator.of(context).pop(); // Cierra la ventana emergente
-                Navigator.of(context).pop(); // Hace el pop en la navegación
-                //Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaginaFormulario(),
+                  ),
+                );
               },
             ),
           ],
@@ -61,6 +65,14 @@ class _PaginaConFondoState extends State<PaginaConFondo> {
     'assets/temploBoton.png',
     'assets/temploBoton.png',
     'assets/temploBoton.png',
+  ];
+
+  // Lista de temas y subtemas
+  final List<Map<String, String>> temas = [
+    {'tema': 'Ruta de Aprendizaje', 'subtema': 'Objetivos y estructura'},
+    {'tema': 'Metas de Desarrollo', 'subtema': 'A corto y largo plazo'},
+    {'tema': 'Desafíos', 'subtema': 'Superación de obstáculos'},
+    {'tema': 'Salir', 'subtema': 'Cerrar la aplicación'}
   ];
 
   @override
@@ -82,6 +94,14 @@ class _PaginaConFondoState extends State<PaginaConFondo> {
         currentIndex: _currentIndex, // Índice actual
         onTap: (index) {
           setState(() {
+            if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MetasPage(),
+                ),
+              );
+            }
             if (index == 3) {
               _showExitDialog(context); // Muestra la ventana emergente al salir
             } else {
@@ -122,51 +142,152 @@ class _PaginaConFondoState extends State<PaginaConFondo> {
               fit: BoxFit.cover,
             ),
           ),
-          child: Center(
-            child: SizedBox(
-              height: 180, // Ajuste de tamaño para centrar verticalmente
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal, // Desplazamiento horizontal
-                itemCount: buttonImages.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 20), // Espacio entre botones
-                    width: 200, // Cuadrado
-                    height: 200, // Cuadrado
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(
-                            buttonImages[index]), // Imagen de fondo del botón
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 6,
-                          offset: Offset(0, 0), // Sombra de los botones
-                        ),
-                      ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // Centra verticalmente
+            children: [
+              // Contenedor redondeado para "Tema" y "Subtema"
+              Container(
+                width: 300,
+                margin: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: Offset(0, 2), // Sombra del contenedor
                     ),
-                    child: TextButton(
-                      onPressed: () {
-                        // Acción al presionar el botón
-                        print('Botón ${index + 1} presionado');
-                      },
-                      child: Center(
-                        child: Text(
-                          'Tema ${index + 1}',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20), // Estilo del texto
-                        ),
-                      ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      temas[_currentIndex]['tema']!, // Tema basado en el índice
+                      style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
                     ),
-                  );
-                },
+                    const SizedBox(height: 8),
+                    Text(
+                      temas[_currentIndex]
+                          ['subtema']!, // Subtema basado en el índice
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                          color: Color.fromARGB(255, 167, 164, 164)),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              // ListView.builder para los botones
+              Expanded(
+                child: Center(
+                  // Centro de la ListView
+                  child: Container(
+                    height: 250, // Ajuste de tamaño más pequeño
+                    child: ListView.builder(
+                      scrollDirection:
+                          Axis.horizontal, // Desplazamiento horizontal
+                      itemCount: buttonImages.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 30), // Espacio entre botones
+                          width: 250, // Tamaño cuadrado
+                          height: 250, // Tamaño cuadrado
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(buttonImages[
+                                  index]), // Imagen de fondo del botón
+                              fit: BoxFit.contain, // Ajuste de la imagen
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 6,
+                                offset: Offset(0, 0), // Sombra de los botones
+                              ),
+                            ],
+                          ),
+                          child: TextButton(
+                            onPressed: () {
+                              // Acción al presionar el botón
+                              print('Botón ${index + 1} presionado');
+                            },
+                            child: Center(
+                              child: Text(
+                                'Tema ${index + 1}',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16), // Estilo del texto
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              // Sección de botones que parecen hojas
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(4, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Acción al presionar el botón de lectura
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  Lectura(tema: 'Lectura ${index + 1}'),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets
+                              .zero, // Elimina el padding predeterminado
+                          elevation: 0, // Elimina la elevación del botón
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(10), // Bordes redondeados
+                          ),
+                        ),
+                        child: Container(
+                          height: 130, 
+                          width: 100,// Ajusta la altura según sea necesario
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(
+                                  'assets/lectura.jpeg'), // Cambia la ruta a tu imagen
+                              fit: BoxFit
+                                  .cover, // Ajusta la imagen para cubrir el botón
+                            ),
+                            borderRadius:
+                                BorderRadius.circular(10), // Bordes redondeados
+                          ),
+                          alignment:
+                              Alignment.topLeft, // Alinea el texto en el centro
+                          child: const Text(
+                            '  Lectura', // Texto del botón
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ),
+
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
         ),
       ),
