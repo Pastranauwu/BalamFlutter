@@ -1,63 +1,33 @@
 import 'package:balam_front/pagina_con_fondo.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert'; // Para convertir JSON
-import 'package:http/http.dart' as http; // Paquete http para solicitudes
+// import 'dart:convert'; // Para convertir JSON
+// import 'package:http/http.dart' as http; // Paquete http para solicitudes
 
 int cambio = 0;
 
-// Modelo para los datos
-// ignore: camel_case_types
-class datos {
-  final String id;
-  final String name;
-
-  datos({required this.id, required this.name});
-
-  // Convertir JSON a un objeto de MiModelo
-  factory datos.fromJson(Map<String, dynamic> json) {
-    return datos(
-      id: json['id'],
-      name: json['name'],
-    );
-  }
-}
-
-// Función para hacer la llamada a la API y guardar datos
-Future<List<datos>> fetchDatosDeApi() async {
-  final String apiUrl = 'http://127.0.0.1:50654/ruta/1'; // URL de la API
-  final response = await http.get(Uri.parse(apiUrl)); // Hacer la solicitud GET
-
-  if (response.statusCode == 200) {
-    // Si la respuesta es exitosa (200), se decodifica el JSON
-    List<dynamic> jsonResponse = json.decode(response.body);
-
-    // Se convierte la respuesta en una lista de objetos de MiModelo
-    return jsonResponse.map((data) => datos.fromJson(data)).toList();
-  } else {
-    // Si la solicitud falla, lanza una excepción
-    throw Exception('Error al cargar los datos desde la API');
-  }
-}
-
 class PaginaTemasInteres extends StatefulWidget {
-  const PaginaTemasInteres({super.key});
+  final List<String> subtemas; // Asegúrate de que este sea el tipo correcto
+  const PaginaTemasInteres({super.key, required this.subtemas});
 
   @override
   _PaginaTemasInteresState createState() => _PaginaTemasInteresState();
 }
 
 class _PaginaTemasInteresState extends State<PaginaTemasInteres> {
-  List<bool> selectedTopics = [false, false, false, false];
+  List<bool> selectedTopics = []; // Inicializar como vacío
   bool isTopicsSelected = false;
   bool isLevelSelectionVisible = false;
   int selectedLevel = -1;
-  fetchDatosDeApi() {
-    // TODO: implement fetchDatosDeApi
-    throw UnimplementedError();
-  }
 
   String titulo = "Temas de Interés";
   String subtitulo = "Selecciona tus temas de interés";
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa el estado de los checkboxes según el número de subtemas
+    selectedTopics = List<bool>.filled(widget.subtemas.length, false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,48 +119,18 @@ class _PaginaTemasInteresState extends State<PaginaTemasInteres> {
 
   Widget _buildTopicsSelection() {
     return Column(
-      children: [
-        CheckboxListTile(
-          title: Text('Tema 1'),
-          value: selectedTopics[0],
+      children: List.generate(widget.subtemas.length, (index) {
+        return CheckboxListTile(
+          title: Text(widget.subtemas[index]), // Muestra el subtema
+          value: selectedTopics[index],
           onChanged: (bool? value) {
             setState(() {
-              selectedTopics[0] = value ?? false;
+              selectedTopics[index] = value ?? false;
               _updateTopicsSelection();
             });
           },
-        ),
-        CheckboxListTile(
-          title: Text('Tema 2'),
-          value: selectedTopics[1],
-          onChanged: (bool? value) {
-            setState(() {
-              selectedTopics[1] = value ?? false;
-              _updateTopicsSelection();
-            });
-          },
-        ),
-        CheckboxListTile(
-          title: Text('Tema 3'),
-          value: selectedTopics[2],
-          onChanged: (bool? value) {
-            setState(() {
-              selectedTopics[2] = value ?? false;
-              _updateTopicsSelection();
-            });
-          },
-        ),
-        CheckboxListTile(
-          title: Text('Tema 4'),
-          value: selectedTopics[3],
-          onChanged: (bool? value) {
-            setState(() {
-              selectedTopics[3] = value ?? false;
-              _updateTopicsSelection();
-            });
-          },
-        ),
-      ],
+        );
+      }),
     );
   }
 
@@ -204,8 +144,7 @@ class _PaginaTemasInteresState extends State<PaginaTemasInteres> {
         RadioListTile<int>(
           title: Text('Principiante',
               style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(
-              "Está aprendiendo las bases de la gestión financiera, como elaborar un presupuesto, ahorrar y entender productos financieros básicos."),
+              subtitle: Text('Está aprendiendo las bases de la gestión financiera, como elaborar un presupuesto, ahorrar y entender productos financieros básicos.'),
           value: 0,
           groupValue: selectedLevel,
           onChanged: (int? value) {
@@ -219,8 +158,7 @@ class _PaginaTemasInteresState extends State<PaginaTemasInteres> {
             'Intermedio',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: Text(
-              "Maneja sus finanzas con cierta soltura, utiliza herramientas como el crédito de forma responsable y busca formas de hacer crecer su dinero."),
+          subtitle:Text('Maneja sus finanzas con cierta soltura, utiliza herramientas como el crédito de forma responsable y busca formas de hacer crecer su dinero.'),
           value: 1,
           groupValue: selectedLevel,
           onChanged: (int? value) {
@@ -231,8 +169,7 @@ class _PaginaTemasInteresState extends State<PaginaTemasInteres> {
         ),
         RadioListTile<int>(
           title: Text('Experto', style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(
-              "Tiene un conocimiento profundo del sistema financiero, invierte con estrategia y planifica su futuro financiero con seguridad."),
+          subtitle: Text('Tiene un conocimiento profundo del sistema financiero, invierte con estrategia y planifica su futuro financiero con seguridad.'),
           value: 2,
           groupValue: selectedLevel,
           onChanged: (int? value) {

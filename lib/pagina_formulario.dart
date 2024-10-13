@@ -4,9 +4,32 @@ import 'pagina_temas_interes.dart';
 import 'dart:convert'; // Para convertir JSON
 import 'package:http/http.dart' as http; // Paquete http para solicitudes
 
-// Función para enviar el JSON con la pregunta y respuesta
-Future<void> enviarPreguntaRespuesta(String pregunta, String respuesta) async {
-  final String apiUrl = 'http://172.31.99.176:8000/mensajes'; // Ruta de la API
+// Modelo para representar la respuesta de la API
+class RespuestaApi {
+  final String preguntaRecibida;
+  final String respuestaRecibida;
+  final List<String> subtemasRecomendados;
+
+  RespuestaApi({
+    required this.preguntaRecibida,
+    required this.respuestaRecibida,
+    required this.subtemasRecomendados,
+  });
+
+  // Método para crear una instancia de RespuestaApi a partir de un JSON
+  factory RespuestaApi.fromJson(Map<String, dynamic> json) {
+    return RespuestaApi(
+      preguntaRecibida: json['pregunta_recibida'],
+      respuestaRecibida: json['respuesta_recibida'],
+      subtemasRecomendados: List<String>.from(json['subtemas_recomendados']),
+    );
+  }
+}
+
+// Función para enviar el JSON con la pregunta y respuesta y recibir la respuesta filtrada
+Future<RespuestaApi?> enviarPreguntaRespuesta(
+    String pregunta, String respuesta) async {
+  final String apiUrl = 'http://172.31.99.197:49749/mensajes'; // Ruta de la API
 
   // Estructura del JSON que enviarás
   Map<String, dynamic> jsonBody = {
@@ -27,17 +50,25 @@ Future<void> enviarPreguntaRespuesta(String pregunta, String respuesta) async {
   if (response.statusCode == 200) {
     print('Datos enviados con éxito');
     print('Respuesta del servidor: ${response.body}');
+
+    // Decodificar el JSON recibido
+    final String responseBody = utf8.decode(response.bodyBytes);
+    final Map<String, dynamic> jsonResponse = jsonDecode(responseBody);
+
+    return RespuestaApi.fromJson(
+        jsonResponse); // Crear y devolver la instancia de RespuestaApi
   } else {
     print('Error al enviar los datos: ${response.statusCode}');
+    return null; // Devolver null si hay un error
   }
 }
-
 
 class PaginaFormulario extends StatelessWidget {
   const PaginaFormulario({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController _textController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -71,6 +102,7 @@ class PaginaFormulario extends StatelessWidget {
               ),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: TextField(
+                controller: _textController,
                 decoration: InputDecoration(
                   hintText: 'Escribe aquí...',
                   border: InputBorder.none,
@@ -99,13 +131,23 @@ class PaginaFormulario extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    enviarPreguntaRespuesta(
-                        '¿Cómo te llamas?', 'Me llamo Eduardo');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PaginaTemasInteres()),
-                    );
+                    print("presionaste");
+                    String textoIngresado =
+                        _textController.text; // Obtener el texto del TextField
+                    // Llamar a la función para enviar la pregunta y respuesta
+                    RespuestaApi? respuestaApi = await enviarPreguntaRespuesta(
+                        '¿Qué problemas financieros tienes?', textoIngresado);
+                    if (respuestaApi != null) {
+                      // Navegar a la siguiente página y pasar los subtemas
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaginaTemasInteres(
+                            subtemas: respuestaApi.subtemasRecomendados,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,

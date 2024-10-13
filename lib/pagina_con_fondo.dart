@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:convert'; // Para convertir JSON
-import 'package:http/http.dart' as http; // Paquete http para solicitudes
+// import 'dart:convert'; // Para convertir JSON
+// import 'package:http/http.dart' as http; // Paquete http para solicitudes
 
 
 class PaginaConFondo extends StatefulWidget {
@@ -46,7 +46,7 @@ class _PaginaConFondoState extends State<PaginaConFondo> {
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra la ventana emergente
                 Navigator.of(context).pop(); // Hace el pop en la navegación
-                Navigator.of(context).pop();
+                //Navigator.of(context).pop();
               },
             ),
           ],
